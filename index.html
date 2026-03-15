@@ -739,4 +739,440 @@
 -->
 
 </body>
+
+
+  <!-- Worship With Us -->
+<style>
+  .worship-section * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .worship-section {
+    background-color: #0f0f0f;
+    color: #fff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-align: center;
+    padding: 4rem 1rem;
+  }
+
+  .worship-section h2 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 0.5em;
+  }
+
+  .worship-section > p {
+    color: #aaa;
+    font-size: clamp(1rem, 2vw, 1.1em);
+    margin-bottom: 2.5em;
+    max-width: 700px;
+    margin-inline: auto;
+  }
+
+  /* ── NEXT LIVESTREAM STRIP ──────────────────────────── */
+  .next-service-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.78rem;
+    color: #888;
+    margin-bottom: 2.5rem;
+  }
+  .next-service-strip .ndot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: wsBlink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .next-service-strip b { color: #fff; font-weight: 600; }
+
+  /* ── GRID ───────────────────────────────────────────── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto 3em;
+    padding: 0 1rem;
+  }
+
+  /* 2 columns from 600px */
+  @media (min-width: 600px) {
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  /* Tablet portrait — 2 columns, center the lone 5th card */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .service-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      max-width: 50%;
+      margin-inline: auto;
+    }
+  }
+  /* Desktop — 3 columns */
+  @media (min-width: 1024px) {
+    .services-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ── CARD ───────────────────────────────────────────── */
+  .service-card {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+
+  .service-card.is-live {
+    border-color: rgba(239,68,68,0.4);
+    box-shadow: 0 0 0 1px rgba(239,68,68,0.12), 0 8px 32px rgba(239,68,68,0.1);
+  }
+
+  /* ── LIVE BADGE ─────────────────────────────────────── */
+  .live-badge {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    position: absolute;
+    top: -0.65rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.8rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    z-index: 2;
+  }
+  .live-badge .ldot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: wsBlink 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .service-card.is-live .live-badge { display: flex; }
+
+  @keyframes wsBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.35; transform: scale(0.65); }
+  }
+
+  /* ── ICON ───────────────────────────────────────────── */
+  .service-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  /* ── CARD TEXT ──────────────────────────────────────── */
+  .service-time {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .service-style {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .service-note {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin-bottom: 1rem;
+  }
+
+  /* ── TAGS ───────────────────────────────────────────── */
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+  }
+  .badge, .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge { background-color: #f87171; color: white; }
+  .tag   { background-color: #374151; color: white; }
+
+  /* Prevent tag overflow on 320px phones */
+  @media (max-width: 360px) {
+    .badge, .tag { font-size: 0.7rem; padding: 3px 8px; }
+  }
+
+  /* ── WATCH LIVE BUTTON ──────────────────────────────── */
+  .watch-btn {
+    margin-top: 1.2rem;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: none;
+  }
+
+  .watch-btn.live {
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+  }
+  .watch-btn.live:hover { background: #e0e0e0; transform: translateY(-2px); }
+
+  .watch-btn.offline {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: #555;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  /* ── PREVIOUS STREAMS LINK ──────────────────────────── */
+  .prev-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .prev-link:hover { color: #aaa; }
+  .prev-link svg { width: 11px; height: 11px; }
+
+  /* ── DIRECTIONS BUTTON ──────────────────────────────── */
+  .cta-button {
+    background-color: #3a3a3a;
+    color: white;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .cta-button:hover { background-color: #5a5a5a; }
+</style>
+
+<section class="worship-section">
+  <h2>Worship With Us</h2>
+  <p>Join us in person or online. We have a place for you—every Sunday.</p>
+
+  <!-- Next livestream indicator -->
+  <div class="next-service-strip">
+    <div class="ndot"></div>
+    <span id="wsNextText">Loading…</span>
+  </div>
+
+  <div class="services-grid">
+
+    <!-- 8:00 AM Traditional -->
+    <div class="service-card" id="card-8am">
+      <div class="live-badge"><div class="ldot"></div> Live Now</div>
+      <img src="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Icons%2Fguitar-instrument-electric-svgrepo-com_1_gray_e0dc4u.svg?alt=media&token=9eedd3cf-b6d6-4301-9c1c-3e76aa316b79" alt="Traditional Service" class="service-icon" />
+      <div class="service-time">8:00 AM</div>
+      <div class="service-style">Traditional Service</div>
+      <div class="service-note">Livestream Available</div>
+      <div class="tags-row">
+        <span class="tag">In-Person</span>
+        <span class="tag">Online</span>
+      </div>
+      <a href="https://youtube.com/live/H7mYVB4bXVo?feature=share"
+         class="watch-btn offline"
+         id="btn-8am"
+         target="_blank">Watch Live</a>
+      <a href="https://youtu.be/WcPMVCsEzkI"
+         class="prev-link"
+         target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Previous streams
+      </a>
+    </div>
+
+    <!-- 9:30 AM Contemporary -->
+    <div class="service-card">
+      <img src="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Icons%2Fguitar-instrument-electric-svgrepo-com_1_gray_e0dc4u.svg?alt=media&token=9eedd3cf-b6d6-4301-9c1c-3e76aa316b79" alt="Contemporary Service" class="service-icon" />
+      <div class="service-time">9:30 AM</div>
+      <div class="service-style">Contemporary Service</div>
+      <div class="service-note">In-Person Only</div>
+      <div class="tags-row">
+        <span class="tag">In-Person</span>
+      </div>
+    </div>
+
+    <!-- 11:00 AM Contemporary -->
+    <div class="service-card" id="card-11am">
+      <div class="live-badge"><div class="ldot"></div> Live Now</div>
+      <img src="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Icons%2Fguitar-instrument-electric-svgrepo-com_1_gray_e0dc4u.svg?alt=media&token=9eedd3cf-b6d6-4301-9c1c-3e76aa316b79" alt="Contemporary Service" class="service-icon" />
+      <div class="service-time">11:00 AM</div>
+      <div class="service-style">Contemporary Service</div>
+      <div class="service-note">Livestream Available</div>
+      <div class="tags-row">
+        <span class="tag">In-Person</span>
+        <span class="tag">Online</span>
+      </div>
+      <a href="https://youtube.com/live/MktyNApaCdI?feature=share"
+         class="watch-btn offline"
+         id="btn-11am"
+         target="_blank">Watch Live</a>
+      <a href="https://youtu.be/4eSBMjMx07w"
+         class="prev-link"
+         target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Previous streams
+      </a>
+    </div>
+
+    <!-- 4:00 PM Servicio Hispano -->
+    <div class="service-card">
+      <img src="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Icons%2Fglobal-svgrepo-com_gray_vbybls.svg?alt=media&token=b89ad1ee-5fc3-4992-85b0-e9261da3e894" alt="Hispanic Service" class="service-icon" />
+      <div class="service-time">4:00 PM</div>
+      <div class="service-style">Servicio Hispano</div>
+      <div class="service-note">En persona</div>
+      <div class="tags-row">
+        <span class="badge">Español</span>
+        <span class="tag">In-Person</span>
+      </div>
+    </div>
+
+    <!-- 5:00 PM Youth -->
+    <div class="service-card">
+      <img src="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Icons%2Fanvil-svgrepo-com_2_xw6ogz.svg?alt=media&token=3951467e-3a97-4672-bf65-b72aaca09dcf" alt="Youth Service" class="service-icon" />
+      <div class="service-time">5:00 PM</div>
+      <div class="service-style">High School Youth</div>
+      <div class="service-note">Meets in Youth Room</div>
+      <div class="tags-row">
+        <span class="tag">In-Person</span>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="cta-button" onclick="window.open('https://www.google.com/maps/place/Highland+Baptist+Church/@44.2683714,-121.2084987,17z', '_blank')">Get Directions →</button>
+</section>
+
+<script>
+(function () {
+
+  /* ── LIVESTREAM WINDOWS (Pacific Time) ───────────────
+     Only services with cardId are tracked for live state
+     and the next livestream strip.
+     start/end = decimal hours (e.g. 7.75 = 7:45 AM)
+  ──────────────────────────────────────────────────── */
+  var SERVICES = [
+    { label: '8:00 AM Traditional',      cardId: 'card-8am',  btnId: 'btn-8am',  start: 7.75,  end: 8.17  },
+    { label: '9:30 AM Contemporary',     cardId: null,        btnId: null,        start: 9.5,   end: 10.75 },
+    { label: '11:00 AM Contemporary',    cardId: 'card-11am', btnId: 'btn-11am', start: 10.75, end: 12.17 },
+    { label: '4:00 PM Servicio Hispano', cardId: null,        btnId: null,        start: 16.0,  end: 17.0  },
+    { label: '5:00 PM High School Youth',cardId: null,        btnId: null,        start: 17.0,  end: 18.0  }
+  ];
+
+  /* Get current Pacific Time */
+  
+  function getPT() {
+    try {
+      var d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+      return { isSunday: d.getDay() === 0, hour: d.getHours() + d.getMinutes() / 60 };
+    } catch(e) {
+      var now = new Date();
+      var utcHour = now.getUTCHours() + now.getUTCMinutes() / 60;
+      var ptHour  = (utcHour - 7 + 24) % 24;
+      return { isSunday: now.getUTCDay() === 0, hour: ptHour };
+    }
+  }
+
+  /* Next livestream text — only tracks cardId services */
+  function nextText(hour, isSunday) {
+    var livestreams = SERVICES.filter(function(s) { return s.cardId !== null; });
+
+    if (!isSunday) return 'Next livestream this <b>Sunday morning</b>';
+
+    for (var i = 0; i < livestreams.length; i++) {
+      var s = livestreams[i];
+      if (hour >= s.start && hour < s.end) {
+        return '● Live now: <b>' + s.label + '</b>';
+      }
+      if (hour < s.start) {
+        var mins = Math.round((s.start - hour) * 60);
+        if (mins <= 60) return 'Next livestream in <b>' + mins + ' min</b> — ' + s.label;
+        var h = Math.floor(mins / 60), m = mins % 60;
+        return 'Next livestream in <b>' + h + 'h' + (m ? ' ' + m + 'm' : '') + '</b> — ' + s.label;
+      }
+    }
+    return 'Livestreams concluded for today — <b>see you next Sunday!</b>';
+  }
+
+  /* Update cards and strip */
+  function update() {
+    var pt = getPT();
+
+    SERVICES.forEach(function (s) {
+      if (!s.cardId) return;
+      var card = document.getElementById(s.cardId);
+      var btn  = s.btnId ? document.getElementById(s.btnId) : null;
+      if (!card) return;
+
+      var isLive = pt.isSunday && pt.hour >= s.start && pt.hour < s.end;
+      var isSoon = pt.isSunday && pt.hour >= s.start - 0.25 && pt.hour < s.start;
+
+      card.classList.toggle('is-live', isLive);
+
+      if (btn) {
+        if (isLive) {
+          btn.className = 'watch-btn live';
+          btn.textContent = '● Watch Live';
+          btn.style.pointerEvents = 'auto';
+        } else {
+          btn.className = 'watch-btn offline';
+          btn.textContent = isSoon ? 'Starting Soon…' : 'Watch Live';
+          btn.style.pointerEvents = 'none';
+        }
+      }
+    });
+
+    var el = document.getElementById('wsNextText');
+    if (el) el.innerHTML = nextText(pt.hour, pt.isSunday);
+  }
+
+  update();
+  setInterval(update, 30000);
+
+}());
+</script>
+  
+  
+  
 </html>
