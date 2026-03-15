@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HBC Hero Slider</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ─── SLIDER ───────────────────────────────────────── */
+    .hero-slider {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 500px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    /* ─── SLIDES ───────────────────────────────────────── */
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .slide.active  { opacity: 1; pointer-events: auto; z-index: 1; }
+    .slide.leaving { opacity: 0; z-index: 0; }
+
+    /* ─── IMAGE BACKGROUND ─────────────────────────────── */
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.04);
+      transition: transform 8s ease-out;
+    }
+    .slide.active .slide-bg { transform: scale(1); }
+
+    .slide-bg-desktop { display: block; }
+    .slide-bg-mobile  { display: none;  }
+
+    /* ─── VIDEO WRAP ───────────────────────────────────── */
+    .slide-video-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .slide-video-wrap video {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
+      object-fit: cover;
+    }
+
+    /* ─── VIDEO POSTER ─────────────────────────────────── */
+    .video-poster {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      z-index: 2;
+      opacity: 1;
+      transition: opacity 0.9s ease;
+    }
+    .video-poster.fade-out { opacity: 0; pointer-events: none; }
+
+    .video-poster .spinner {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px; height: 44px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.85);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    .video-poster.ready .spinner { display: none; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    /* ─── GRADIENT OVERLAY ─────────────────────────────── */
+    .slide-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top,  rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 55%, transparent 100%),
+        linear-gradient(to right, rgba(0,0,0,0.3)  0%, transparent 55%);
+      z-index: 3;
+    }
+
+    /* ─── SLIDE CONTENT ────────────────────────────────── */
+    .slide-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2.5rem 4rem 4.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 5;
+    }
+
+    .text-block {
+      max-width: 48%;
+      transform: translateY(20px);
+      opacity: 0;
+      transition:
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s,
+        opacity   0.9s ease 0.25s;
+    }
+    .slide.active .text-block { transform: translateY(0); opacity: 1; }
+
+    .slide-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.45rem;
+    }
+    .text-block h1 {
+      font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.55rem;
+    }
+    .text-block p {
+      font-size: clamp(0.88rem, 1.2vw, 1rem);
+      color: rgba(255,255,255,0.68);
+      line-height: 1.55;
+      max-width: 38ch;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      transform: translateY(20px);
+      opacity: 0;
+      transition:
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.42s,
+        opacity   0.9s ease 0.42s;
+    }
+    .slide.active .button-group { transform: translateY(0); opacity: 1; }
+
+    .btn {
+      padding: 0.72rem 1.65rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      white-space: nowrap;
+      border: none;
+    }
+    .btn-primary { background: #fff; color: #000; }
+    .btn-primary:hover { background: #ddd; transform: translateY(-2px); }
+    .btn-outline {
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.28);
+      color: #fff;
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+    /* ─── MUTE BUTTON ──────────────────────────────────── */
+    .mute-btn {
+      position: absolute;
+      bottom: 5rem;
+      right: 4rem;
+      z-index: 8;
+      background: rgba(0,0,0,0.45);
+      border: 1.5px solid rgba(255,255,255,0.22);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.22s ease, transform 0.22s ease;
+      font-size: 1rem;
+    }
+    .mute-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.1); }
+    .mute-btn.visible { display: flex; }
+
+    /* ─── AUTOPLAY NOTICE ──────────────────────────────── */
+    .autoplay-notice {
+      position: absolute;
+      top: 1.2rem; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.65);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      z-index: 20;
+      display: none;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .autoplay-notice.visible { display: flex; }
+
+    /* ─── PROGRESS BAR ─────────────────────────────────── */
+    .progress-bar-wrap {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.12);
+      z-index: 10;
+    }
+    .progress-bar {
+      height: 100%;
+      background: rgba(255,255,255,0.85);
+      width: 0%;
+    }
+
+    /* ─── BULLETS ──────────────────────────────────────── */
+    .slider-bullets {
+      position: absolute;
+      bottom: 1.6rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.55rem;
+      z-index: 9;
+    }
+    .bullet {
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.3);
+      border: none; cursor: pointer; padding: 0;
+      transition: all 0.3s ease;
+    }
+    .bullet.active { background: #fff; width: 22px; }
+
+    /* ─── ARROWS ───────────────────────────────────────── */
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      z-index: 9;
+      transition: background 0.22s ease, transform 0.25s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .slider-arrow:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .arrow-prev { left: 1.25rem; }
+    .arrow-next { right: 1.25rem; }
+
+    /* ─── RESPONSIVE — Tablet portrait ────────────────── */
+    @media (max-width: 900px) and (min-width: 601px) {
+      .slide-content { padding: 2rem 2.5rem 5rem; }
+      .text-block { max-width: 58%; }
+    }
+
+    /* ─── RESPONSIVE — Mobile (≤600px) ────────────────── */
+    @media (max-width: 600px) {
+      .hero-slider { min-height: 620px; }
+
+      /* Swap to mobile images/videos */
+      .slide-bg-desktop { display: none !important; }
+      .slide-bg-mobile  { display: block !important; }
+
+      .slide-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.5rem 1.25rem 5.5rem;
+        gap: 1.5rem;
+      }
+      .text-block { max-width: 100%; }
+      .text-block p { max-width: 100%; }
+      .button-group {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .btn { width: 88%; text-align: center; font-size: 0.95rem; }
+      .slider-arrow { display: none; }
+      .mute-btn {
+        bottom: auto;
+        top: 1.2rem;
+        right: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero-slider" id="heroSlider">
+
+  <!-- ═══════════════════════════════════════════════════
+       SLIDE 1 — VIDEO SLIDE
+       data-type="video"
+       data-duration: fallback timer (ms) if autoplay is blocked
+       data-src-desktop / data-src-mobile: video URLs (lazy loaded)
+       data-poster-desktop / data-poster-mobile: cover image while loading
+       • Starts MUTED — user can tap the volume icon to unmute
+       • Auto-advances when video ends
+       • Falls back to data-duration timer if autoplay is blocked by browser
+  ═══════════════════════════════════════════════════ -->
+  <div class="slide"
+       data-type="video"
+       data-duration="8000"
+       data-src-desktop=""
+       data-src-mobile="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FVideo%2FPrayer-Slide-Sermon%20(1).mp4?alt=media&token=82d36ae7-d6ba-49b6-a91c-7deb4804a41f"
+       data-poster-desktop="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FJames%20Series%202026%20(1).jpg?alt=media&token=3babe5bb-9fa5-4629-832e-85dd33551eb2"
+       data-poster-mobile="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FMobile%2FJames%20-%20mobile.jpg?alt=media&token=df97d648-e34d-4a5a-a797-c7c6234caeef">
+    <div class="video-poster"><div class="spinner"></div></div>
+    <div class="slide-video-wrap"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="text-block">
+     <h1>Join Our Current Sermon Series</h1>
+        <p>Every Sunday in person &amp; online.</p>
+      </div>
+      <div class="button-group">
+         <a href="https://www.youtube.com/watch?v=4eSBMjMx07w&t=1352s" class="btn btn-primary" target="_blank">Watch Latest Service</a>
+        <a href="https://hbcredmond.org/sermons" class="btn btn-outline" target="_blank">Sermon Library →</a>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- ═══════════════════════════════════════════════════
+       SLIDE 2 — IMAGE SLIDE
+       data-type="image"
+       data-duration: display time in ms (default 6000)
+       Use .slide-bg-desktop + .slide-bg-mobile for responsive images
+  ═══════════════════════════════════════════════════ -->
+  <div class="slide active" data-type="image" data-duration="6000">
+    <div class="slide-bg slide-bg-desktop"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FEaster%20cover%20website.jpg?alt=media&token=1e07f26d-00ae-4406-8d4c-5b94dc4df5c3')"></div>
+    <div class="slide-bg slide-bg-mobile"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FMobile%2FCover%20for%20website%20(mobile).jpg?alt=media&token=2db8d16f-b902-49d0-a4db-537f30bac297')"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="text-block">
+         <div class="slide-eyebrow">Easter Weekend · April 3–5</div>
+        <h1>He is Risen</h1>
+        <p>Join us for Easter services, baptisms, and an egg hunt for the kids.</p>
+      </div>
+      <div class="button-group">
+        <a href="hbcredmond.org/easter-2026" class="btn btn-primary" target="_blank">Easter Details</a>
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  
+  
+  <!-- ═══════════════════════════════════════════════════
+       SLIDE 3 — IMAGE SLIDE
+  ═══════════════════════════════════════════════════ -->
+  <div class="slide" data-type="image" data-duration="6000">
+    <div class="slide-bg slide-bg-desktop"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FGrade%20School%20VBS%202026%20(3).jpg?alt=media&token=01b6737f-7115-494d-a12b-9e1204c341a6')"></div>
+    <div class="slide-bg slide-bg-mobile"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FMobile%2Fvbs%20mobile%20volunteers.jpg?alt=media&token=3674efe6-67ce-4b6c-ad94-86f5da0ae5ed')"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="text-block">
+        <h1>Volunteer Registrations Now Open</h1>
+        <p>Volunteer for VBS and help kids learn more about who Jesus is!</p>
+      </div>
+      <div class="button-group">
+        <a href="https://hbcredmond.churchcenter.com/registrations/events/3387633" class="btn btn-primary" target="_blank">Register Me →</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── SHARED CONTROLS ───────────────────────────────── -->
+
+  <!-- Mute/unmute — visible only on video slides -->
+  <button class="mute-btn" id="muteBtn" aria-label="Toggle sound"></button>
+
+  <!-- Shown when browser blocks autoplay -->
+  <div class="autoplay-notice" id="autoplayNotice">▶ Tap to play video</div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="slider-bullets" id="sliderBullets"></div>
+
+  <button class="slider-arrow arrow-prev" id="arrowPrev" aria-label="Previous slide">&#10094;</button>
+  <button class="slider-arrow arrow-next" id="arrowNext" aria-label="Next slide">&#10095;</button>
+</div>
+
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── SVG ICONS ─────────────────────────────────────── */
+  const ICON_MUTED = `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+  const ICON_SOUND = `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+
+  /* ── ELEMENTS ──────────────────────────────────────── */
+  const slider       = document.getElementById('heroSlider');
+  const slides       = Array.from(slider.querySelectorAll('.slide'));
+  const bulletsWrap  = document.getElementById('sliderBullets');
+  const progressBar  = document.getElementById('progressBar');
+  const muteBtn      = document.getElementById('muteBtn');
+  const autoplayNote = document.getElementById('autoplayNotice');
+
+  /* ── STATE ─────────────────────────────────────────── */
+  let current    = 0;
+  let slideTimer = null;
+  let progRAF    = null;
+  let isMuted    = true;   // always start muted (required for autoplay)
+
+  const MOBILE_BP = 600;
+  const isMobile  = () => window.innerWidth <= MOBILE_BP;
+
+  /* ── MUTE BUTTON INIT ──────────────────────────────── */
+  muteBtn.innerHTML = ICON_MUTED;
+  muteBtn.addEventListener('click', toggleMute);
+
+  /* ── BUILD BULLETS ─────────────────────────────────── */
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'bullet' + (i === 0 ? ' active' : '');
+    b.setAttribute('aria-label', 'Slide ' + (i + 1));
+    b.addEventListener('click', () => goTo(i));
+    bulletsWrap.appendChild(b);
+  });
+
+  function updateBullets() {
+    bulletsWrap.querySelectorAll('.bullet').forEach((b, i) =>
+      b.classList.toggle('active', i === current));
+  }
+
+  /* ── PROGRESS BAR (rAF-based, no CSS transition) ──── */
+  function startProgress(ms) {
+    cancelAnimationFrame(progRAF);
+    progressBar.style.width = '0%';
+    const start = performance.now();
+    function tick(now) {
+      const pct = Math.min(((now - start) / ms) * 100, 100);
+      progressBar.style.width = pct + '%';
+      if (pct < 100) progRAF = requestAnimationFrame(tick);
+    }
+    progRAF = requestAnimationFrame(tick);
+  }
+
+  function stopProgress() {
+    cancelAnimationFrame(progRAF);
+    progressBar.style.width = '0%';
+  }
+
+  /* ── LAZY LOAD VIDEO ───────────────────────────────── */
+  function loadVideo(slide, onReady) {
+    const wrap   = slide.querySelector('.slide-video-wrap');
+    const poster = slide.querySelector('.video-poster');
+
+    // Set poster image
+    const posterSrc = isMobile()
+      ? (slide.dataset.posterMobile || slide.dataset.posterDesktop)
+      : (slide.dataset.posterDesktop || slide.dataset.posterMobile);
+    if (posterSrc) poster.style.backgroundImage = `url('${posterSrc}')`;
+
+    // Reuse video if already created
+    let video = wrap.querySelector('video');
+    if (video) { onReady(video); return; }
+
+    const src = isMobile()
+      ? (slide.dataset.srcMobile || slide.dataset.srcDesktop)
+      : (slide.dataset.srcDesktop || slide.dataset.srcMobile);
+
+    video = document.createElement('video');
+    video.muted        = true;   // must be muted for autoplay to work
+    video.playsInline  = true;   // iOS: prevent fullscreen takeover
+    video.setAttribute('webkit-playsinline', '');  // older iOS Safari
+    video.preload      = 'auto';
+    video.src          = src;
+
+    wrap.appendChild(video);
+
+    const onCanPlay = () => {
+      poster.classList.add('ready');  // hides spinner
+      onReady(video);
+    };
+
+    // readyState 3 = HAVE_FUTURE_DATA, 4 = HAVE_ENOUGH_DATA
+    if (video.readyState >= 3) {
+      onCanPlay();
+    } else {
+      video.addEventListener('canplay', onCanPlay, { once: true });
+      // iOS Safari may stall — nudge it
+      video.load();
+    }
+  }
+
+  /* ── PLAY VIDEO (with Safari fallback) ────────────── */
+  function playVideo(slide, video) {
+    const poster = slide.querySelector('.video-poster');
+    const dur    = parseInt(slide.dataset.duration) || 8000;
+
+    video.muted        = isMuted;
+    video.currentTime  = 0;
+
+    const attempt = video.play();
+
+    if (attempt && typeof attempt.then === 'function') {
+      attempt.then(() => {
+        // ✅ Autoplay succeeded
+        setTimeout(() => poster.classList.add('fade-out'), 300);
+        autoplayNote.classList.remove('visible');
+        muteBtn.classList.add('visible');
+      }).catch(() => {
+        // ❌ Autoplay blocked (common on Safari without user gesture)
+        // Show tap-to-play notice and fall back to timer
+        poster.classList.add('ready');
+        autoplayNote.classList.add('visible');
+        muteBtn.classList.remove('visible');
+        startProgress(dur);
+        clearTimeout(slideTimer);
+        slideTimer = setTimeout(() => goTo((current + 1) % slides.length), dur);
+      });
+    } else {
+      // Old browser — assume success
+      setTimeout(() => poster.classList.add('fade-out'), 300);
+      muteBtn.classList.add('visible');
+    }
+
+    // Advance when video ends (use once to avoid stacking)
+    video.addEventListener('ended', () => {
+      goTo((current + 1) % slides.length);
+    }, { once: true });
+
+    // Tap-to-play handler on the notice banner
+    autoplayNote.onclick = () => {
+      video.play().then(() => {
+        setTimeout(() => poster.classList.add('fade-out'), 300);
+        autoplayNote.classList.remove('visible');
+        muteBtn.classList.add('visible');
+        stopProgress();
+        clearTimeout(slideTimer);
+      }).catch(() => {});
+    };
+  }
+
+  /* ── MUTE TOGGLE ───────────────────────────────────── */
+  function toggleMute() {
+    isMuted = !isMuted;
+    muteBtn.innerHTML = isMuted ? ICON_MUTED : ICON_SOUND;
+    const vid = slides[current].querySelector('video');
+    if (vid) vid.muted = isMuted;
+  }
+
+  /* ── ACTIVATE SLIDE ────────────────────────────────── */
+  function activateSlide(index) {
+    slides.forEach((s, i) => {
+      s.classList.toggle('active',  i === index);
+      s.classList.toggle('leaving', i !== index);
+    });
+    updateBullets();
+    muteBtn.classList.remove('visible');
+
+    const slide = slides[index];
+
+    if (slide.dataset.type === 'video') {
+      stopProgress();
+      loadVideo(slide, video => playVideo(slide, video));
+    } else {
+      autoplayNote.classList.remove('visible');
+      const dur = parseInt(slide.dataset.duration) || 6000;
+      startProgress(dur);
+      clearTimeout(slideTimer);
+      slideTimer = setTimeout(() => goTo((current + 1) % slides.length), dur);
+    }
+  }
+
+  /* ── GO TO ─────────────────────────────────────────── */
+  function goTo(index) {
+    if (index === current) return;
+
+    // Pause current video cleanly
+    const oldVid = slides[current].querySelector('video');
+    if (oldVid) { oldVid.pause(); }
+
+    clearTimeout(slideTimer);
+    stopProgress();
+
+    current = ((index % slides.length) + slides.length) % slides.length;
+    activateSlide(current);
+  }
+
+  /* ── ARROWS ────────────────────────────────────────── */
+  document.getElementById('arrowPrev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('arrowNext').addEventListener('click', () => goTo(current + 1));
+
+  /* ── TOUCH SWIPE ───────────────────────────────────── */
+  let touchX = 0;
+  slider.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  slider.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 48) goTo(diff > 0 ? current + 1 : current - 1);
+  }, { passive: true });
+
+  /* ── KEYBOARD ──────────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+  });
+
+  /* ── RESIZE: re-source video if breakpoint crossed ── */
+  let wasMobile = isMobile();
+  window.addEventListener('resize', () => {
+    const nowMobile = isMobile();
+    if (nowMobile === wasMobile) return;
+    wasMobile = nowMobile;
+
+    // Destroy cached video elements on video slides so correct src reloads
+    slides.forEach(s => {
+      if (s.dataset.type !== 'video') return;
+      const v = s.querySelector('video');
+      if (v) { v.pause(); v.remove(); }
+      const p = s.querySelector('.video-poster');
+      if (p) p.classList.remove('fade-out', 'ready');
+    });
+
+    // Re-activate if current slide is a video
+    if (slides[current].dataset.type === 'video') activateSlide(current);
+  });
+
+  /* ── INIT ──────────────────────────────────────────── */
+  activateSlide(0);
+
+}());
+</script>
+
+
+<!--
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HOW TO ADD A NEW SLIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▶ IMAGE SLIDE (with separate desktop + mobile images):
+
+<div class="slide" data-type="image" data-duration="6000">
+  <div class="slide-bg slide-bg-desktop"
+       style="background-image: url('YOUR_DESKTOP_IMAGE_URL')"></div>
+  <div class="slide-bg slide-bg-mobile"
+       style="background-image: url('YOUR_MOBILE_IMAGE_URL')"></div>
+  <div class="slide-overlay"></div>
+  <div class="slide-content">
+    <div class="text-block">
+      <div class="slide-eyebrow">Optional Label</div>
+      <h1>Slide Title</h1>
+      <p>Optional subtitle.</p>
+    </div>
+    <div class="button-group">
+      <a href="#" class="btn btn-primary" target="_blank">Primary CTA</a>
+      <a href="#" class="btn btn-outline" target="_blank">Secondary →</a>
+    </div>
+  </div>
+</div>
+
+
+▶ VIDEO SLIDE (with separate desktop + mobile videos and poster covers):
+
+<div class="slide"
+     data-type="video"
+     data-duration="10000"
+     data-src-desktop="YOUR_DESKTOP_VIDEO_URL"
+     data-src-mobile="YOUR_MOBILE_VIDEO_URL"
+     data-poster-desktop="YOUR_DESKTOP_POSTER_IMAGE_URL"
+     data-poster-mobile="YOUR_MOBILE_POSTER_IMAGE_URL">
+  <div class="video-poster"><div class="spinner"></div></div>
+  <div class="slide-video-wrap"></div>
+  <div class="slide-overlay"></div>
+  <div class="slide-content">
+    <div class="text-block">
+      <div class="slide-eyebrow">Optional Label</div>
+      <h1>Slide Title</h1>
+      <p>Optional subtitle.</p>
+    </div>
+    <div class="button-group">
+      <a href="#" class="btn btn-primary" target="_blank">Primary CTA</a>
+    </div>
+  </div>
+</div>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  REMEMBER: also add a matching bullet for each new slide:
+  <button class="bullet" data-glide-dir="=N"></button>
+  inside #sliderBullets
+
+  NOTES:
+  • Videos are lazy-loaded — only fetched when their slide activates.
+  • If you only have one video (no mobile version), set both
+    data-src-desktop and data-src-mobile to the same URL.
+  • data-duration on video slides = fallback timer if autoplay blocked.
+  • Breakpoint between mobile/desktop layout: 600px (matches CSS).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-->
+
+</body>
+</html>
