@@ -334,7 +334,35 @@
 <div class="hero-slider" id="heroSlider">
 
   <!-- ═══════════════════════════════════════════════════
-       SLIDE 1 — VIDEO SLIDE
+       SLIDE 1 — IMAGE SLIDE
+       data-type="image"
+       data-duration: display time in ms (default 6000)
+       Use .slide-bg-desktop + .slide-bg-mobile for responsive images
+  ═══════════════════════════════════════════════════ -->
+  <div class="slide active" data-type="image" data-duration="6000">
+    <div class="slide-bg slide-bg-desktop"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FEaster%20cover%20website.jpg?alt=media&token=1e07f26d-00ae-4406-8d4c-5b94dc4df5c3')"></div>
+    <div class="slide-bg slide-bg-mobile"
+         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FMobile%2FCover%20for%20website%20(mobile).jpg?alt=media&token=2db8d16f-b902-49d0-a4db-537f30bac297')"></div>
+    <div class="slide-overlay"></div>
+    <div class="slide-content">
+      <div class="text-block">
+         <div class="slide-eyebrow">Easter Weekend · April 3–5</div>
+        <h1>He is Risen</h1>
+        <p>Join us for Easter services, baptisms, and an egg hunt for the kids.</p>
+      </div>
+      <div class="button-group">
+        <a href="https://www.hbcredmond.org/easter-2026" class="btn btn-primary" target="_blank">Easter Details</a>
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  
+  <!-- ═══════════════════════════════════════════════════
+       SLIDE 2 — VIDEO SLIDE
        data-type="video"
        data-duration: fallback timer (ms) if autoplay is blocked
        data-src-desktop / data-src-mobile: video URLs (lazy loaded)
@@ -366,33 +394,7 @@
   </div>
 
 
-    <!-- ═══════════════════════════════════════════════════
-       SLIDE 2 — IMAGE SLIDE
-       data-type="image"
-       data-duration: display time in ms (default 6000)
-       Use .slide-bg-desktop + .slide-bg-mobile for responsive images
-  ═══════════════════════════════════════════════════ -->
-  <div class="slide active" data-type="image" data-duration="6000">
-    <div class="slide-bg slide-bg-desktop"
-         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FEaster%20cover%20website.jpg?alt=media&token=1e07f26d-00ae-4406-8d4c-5b94dc4df5c3')"></div>
-    <div class="slide-bg slide-bg-mobile"
-         style="background-image: url('https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FMobile%2FCover%20for%20website%20(mobile).jpg?alt=media&token=2db8d16f-b902-49d0-a4db-537f30bac297')"></div>
-    <div class="slide-overlay"></div>
-    <div class="slide-content">
-      <div class="text-block">
-         <div class="slide-eyebrow">Easter Weekend · April 3–5</div>
-        <h1>He is Risen</h1>
-        <p>Join us for Easter services, baptisms, and an egg hunt for the kids.</p>
-      </div>
-      <div class="button-group">
-        <a href="https://www.hbcredmond.org/easter-2026" class="btn btn-primary" target="_blank">Easter Details</a>
-        
-      </div>
-    </div>
-  </div>
-
-
-
+    
   
   
   <!-- ═══════════════════════════════════════════════════
