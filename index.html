@@ -934,6 +934,7 @@
 
 
   <!-- Worship With Us -->
+<!-- Worship With Us -->
 <style>
   .worship-section * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -994,14 +995,6 @@
   /* 2 columns from 600px */
   @media (min-width: 600px) {
     .services-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  /* Tablet portrait — 2 columns, center the lone 5th card */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .service-card:last-child:nth-child(odd) {
-      grid-column: 1 / -1;
-      max-width: 50%;
-      margin-inline: auto;
-    }
   }
   /* Desktop — 3 columns */
   @media (min-width: 1024px) {
@@ -1148,17 +1141,101 @@
   .prev-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.4rem;
     margin-top: 0.6rem;
     font-size: 0.78rem;
-    color: #555;
+    color: #888;
     text-decoration: none;
     transition: color 0.2s ease;
   }
-  .prev-link:hover { color: #aaa; }
-  .prev-link svg { width: 11px; height: 11px; }
+  .prev-link:hover { color: #fff; }
+  .prev-link svg {
+    width: 13px; height: 13px;
+    color: #c9a84c;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+  }
+  .prev-link:hover svg { color: #e8c97a; }
 
-  /* ── DIRECTIONS BUTTON ──────────────────────────────── */
+  /* ── THIS SUNDAY COVER CARD ─────────────────────────── */
+  .sunday-cover-card {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 260px;
+  }
+  .sunday-cover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+
+  .sunday-cover-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease;
+  }
+  .sunday-cover-card:hover .sunday-cover-bg { transform: scale(1.04); }
+
+  .sunday-cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.88) 0%,
+      rgba(0,0,0,0.3) 55%,
+      rgba(0,0,0,0.05) 100%
+    );
+  }
+
+  .sunday-cover-body {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 1.25rem 1.25rem 1.4rem;
+    text-align: left;
+  }
+
+  .sunday-cover-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 0.4rem;
+  }
+  .sunday-cover-eyebrow .cdot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #c9a84c;
+    animation: wsBlink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .sunday-cover-title {
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.01em;
+  }
+
+  .sunday-cover-desc {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
   .cta-button {
     background-color: #3a3a3a;
     color: white;
@@ -1198,14 +1275,14 @@
         <span class="tag">In-Person</span>
         <span class="tag">Online</span>
       </div>
-       <!-- WATCH LIVE LINK --> <a href="https://www.youtube.com/watch?v=Ri70YRlfW3E"
+      <a href="https://youtube.com/live/H7mYVB4bXVo?feature=share"
          class="watch-btn offline"
          id="btn-8am"
          target="_blank">Watch Live</a>
-      <a href="https://www.youtube.com/@hbcredmond/streams"
+      <a href="https://www.youtube.com/@HighlandBaptistChurchRedmond/streams"
          class="prev-link"
          target="_blank">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
         Previous streams
@@ -1234,14 +1311,14 @@
         <span class="tag">In-Person</span>
         <span class="tag">Online</span>
       </div>
-     <!-- WATCH LIVE LINK --> <a href="https://www.youtube.com/watch?v=JWTWmmraLVE"
+      <a href="https://youtube.com/live/MktyNApaCdI?feature=share"
          class="watch-btn offline"
          id="btn-11am"
          target="_blank">Watch Live</a>
-      <a href="https://www.youtube.com/@hbcredmond/streams"
+      <a href="https://www.youtube.com/@HighlandBaptistChurchRedmond/streams"
          class="prev-link"
          target="_blank">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
         Previous streams
@@ -1271,6 +1348,30 @@
       </div>
     </div>
 
+    <!-- THIS SUNDAY cover card -->
+    <!--
+      ══════════════════════════════════════════════════
+      HOW TO UPDATE THIS CARD EACH WEEK:
+      1. Change data-bg to your Firebase image URL
+      2. Update the title (sermon series or event name)
+      3. Update the desc (one short line)
+      ══════════════════════════════════════════════════
+    -->
+    <div class="sunday-cover-card"
+         id="sunday-cover"
+         data-bg="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Events%2FGeneral%2FPalm%20Sunday.webp?alt=media&token=a05aa8f7-1701-4874-8eab-c851162e44da">
+      <div class="sunday-cover-bg"></div>
+      <div class="sunday-cover-overlay"></div>
+      <div class="sunday-cover-body">
+        <div class="sunday-cover-eyebrow">
+          <div class="cdot"></div>
+          This Sunday
+        </div>
+        <div class="sunday-cover-title">Palm Sunday</div>
+        <div class="sunday-cover-desc">Join us as we begin Holy Week together.</div>
+      </div>
+    </div>
+
   </div>
 
   <button class="cta-button" onclick="window.open('https://www.google.com/maps/place/Highland+Baptist+Church/@44.2683714,-121.2084987,17z', '_blank')">Get Directions →</button>
@@ -1284,9 +1385,8 @@
      and the next livestream strip.
      start/end = decimal hours (e.g. 7.75 = 7:45 AM)
   ──────────────────────────────────────────────────── */
-
   var SERVICES = [
-    { label: '8:00 AM Traditional',      cardId: 'card-8am',  btnId: 'btn-8am',  start: 7.75,  end: 9.17  },
+    { label: '8:00 AM Traditional',      cardId: 'card-8am',  btnId: 'btn-8am',  start: 7.75,  end: 8.17  },
     { label: '9:30 AM Contemporary',     cardId: null,        btnId: null,        start: 9.5,   end: 10.75 },
     { label: '11:00 AM Contemporary',    cardId: 'card-11am', btnId: 'btn-11am', start: 10.75, end: 12.17 },
     { label: '4:00 PM Servicio Hispano', cardId: null,        btnId: null,        start: 16.0,  end: 17.0  },
@@ -1294,7 +1394,6 @@
   ];
 
   /* Get current Pacific Time */
-  
   function getPT() {
     try {
       var d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
@@ -1363,9 +1462,16 @@
   update();
   setInterval(update, 30000);
 
+  /* Set cover card background from data attribute */
+  var cover = document.getElementById('sunday-cover');
+  if (cover) {
+    var bg = cover.getAttribute('data-bg');
+    var bgEl = cover.querySelector('.sunday-cover-bg');
+    if (bg && bgEl) bgEl.style.backgroundImage = 'url(' + bg + ')';
+  }
+
 }());
-</script>
-  
+</script>  
   
 </body>
 </html>
