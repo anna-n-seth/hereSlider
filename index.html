@@ -1122,6 +1122,7 @@
   
   <!-- Worship With Us -->
 <!-- Worship With Us -->
+<!-- Worship With Us -->
 <style>
   .worship-section * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1316,6 +1317,18 @@
   }
   .watch-btn.live:hover { background: #e0e0e0; transform: translateY(-2px); }
 
+  /* Previous stream — subtle gold tint to distinguish from live */
+  .watch-btn.prev-stream {
+    background: rgba(201,168,76,0.12);
+    border: 1.5px solid rgba(201,168,76,0.35);
+    color: #c9a84c;
+    cursor: pointer;
+  }
+  .watch-btn.prev-stream:hover {
+    background: rgba(201,168,76,0.22);
+    transform: translateY(-2px);
+  }
+
   .watch-btn.offline {
     background: rgba(255,255,255,0.05);
     border: 1.5px solid rgba(255,255,255,0.1);
@@ -1323,26 +1336,6 @@
     pointer-events: none;
     cursor: default;
   }
-
-  /* ── PREVIOUS STREAMS LINK ──────────────────────────── */
-  .prev-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.6rem;
-    font-size: 0.78rem;
-    color: #888;
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-  .prev-link:hover { color: #fff; }
-  .prev-link svg {
-    width: 13px; height: 13px;
-    color: #c9a84c;
-    transition: color 0.2s ease;
-    flex-shrink: 0;
-  }
-  .prev-link:hover svg { color: #e8c97a; }
 
   /* ── THIS SUNDAY COVER CARD ─────────────────────────── */
   .sunday-cover-card {
@@ -1466,14 +1459,6 @@
          class="watch-btn offline"
          id="btn-8am"
          target="_blank">Watch Live</a>
-      <a href="https://www.youtube.com/@hbcredmond/streams"
-         class="prev-link"
-         target="_blank">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        Previous streams
-      </a>
     </div>
 
     <!-- 9:30 AM Contemporary -->
@@ -1502,14 +1487,6 @@
          class="watch-btn offline"
          id="btn-11am"
          target="_blank">Watch Live</a>
-      <a href="https://www.youtube.com/@hbcredmond/streams"
-         class="prev-link"
-         target="_blank">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        Previous streams
-      </a>
     </div>
 
     <!-- 4:00 PM Servicio Hispano -->
@@ -1535,16 +1512,9 @@
       </div>
     </div>
 
-    <!-- THIS SUNDAY cover card -->
+    <!-- THIS SUNDAY cover card (commented out — uncomment to activate) -->
     <!--
-      ══════════════════════════════════════════════════
-      HOW TO UPDATE THIS CARD EACH WEEK:
-      1. Change data-bg to your Firebase image URL
-      2. Update the title (sermon series or event name)
-      3. Update the desc (one short line)
-      ══════════════════════════════════════════════════
-    -->
-    <!--<div class="sunday-cover-card"
+    <div class="sunday-cover-card"
          id="sunday-cover"
          data-bg="https://firebasestorage.googleapis.com/v0/b/hbc-website-8b832.firebasestorage.app/o/Slider%2FDesktop%2FEaster%20cover%20website%20(1).jpg?alt=media&token=3930310b-a4a9-426e-b12f-c0ff83132f25">
       <div class="sunday-cover-bg"></div>
@@ -1557,7 +1527,8 @@
         <div class="sunday-cover-title">Easter</div>
         <div class="sunday-cover-desc">Come celebrate the hope, the victory, and the new life that changes everything.</div>
       </div>
-    </div>-->
+    </div>
+    -->
 
   </div>
 
@@ -1568,33 +1539,86 @@
 (function () {
 
   /* ── LIVESTREAM WINDOWS (Pacific Time) ───────────────
-     Only services with cardId are tracked for live state
-     and the next livestream strip.
      start/end = decimal hours (e.g. 7.75 = 7:45 AM)
+     POST-STREAM WINDOW: Sunday end → Wednesday 11:59 PM PT
+     (4 full days: Sun, Mon, Tue, Wed)
   ──────────────────────────────────────────────────── */
   var SERVICES = [
-    { label: '8:00 AM Traditional',      cardId: 'card-8am',  btnId: 'btn-8am',  start: 7.75,  end: 9.00  },
-    { label: '9:30 AM Contemporary',     cardId: null,        btnId: null,        start: 9.5,   end: 10.75 },
-    { label: '11:00 AM Contemporary',    cardId: 'card-11am', btnId: 'btn-11am', start: 10.95, end: 12.10 },
-    { label: '4:00 PM Servicio Hispano', cardId: null,        btnId: null,        start: 16.0,  end: 17.0  },
-    { label: '5:00 PM High School Youth',cardId: null,        btnId: null,        start: 17.0,  end: 18.0  }
+    { label: '8:00 AM Traditional',       cardId: 'card-8am',  btnId: 'btn-8am',  start: 7.75,  end: 9.00  },
+    { label: '9:30 AM Contemporary',      cardId: null,        btnId: null,        start: 9.5,   end: 10.75 },
+    { label: '11:00 AM Contemporary',     cardId: 'card-11am', btnId: 'btn-11am', start: 10.95, end: 12.10 },
+    { label: '4:00 PM Servicio Hispano',  cardId: null,        btnId: null,        start: 16.0,  end: 17.0  },
+    { label: '5:00 PM High School Youth', cardId: null,        btnId: null,        start: 17.0,  end: 18.0  }
   ];
 
-  /* Get current Pacific Time */
+  /* ── Get current Pacific Time ── */
   function getPT() {
     try {
       var d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-      return { isSunday: d.getDay() === 0, hour: d.getHours() + d.getMinutes() / 60 };
+      return {
+        day:     d.getDay(),       // 0=Sun, 1=Mon … 6=Sat
+        hour:    d.getHours() + d.getMinutes() / 60,
+        isSunday: d.getDay() === 0
+      };
     } catch(e) {
       var now = new Date();
       var utcHour = now.getUTCHours() + now.getUTCMinutes() / 60;
       var ptHour  = (utcHour - 7 + 24) % 24;
-      return { isSunday: now.getUTCDay() === 0, hour: ptHour };
+      return {
+        day:      now.getUTCDay(),
+        hour:     ptHour,
+        isSunday: now.getUTCDay() === 0
+      };
     }
   }
 
-  /* Next livestream text — only tracks cardId services */
-  function nextText(hour, isSunday) {
+  /*
+   * ── BUTTON STATE LOGIC ──────────────────────────────
+   *
+   * For each livestream-tracked service:
+   *
+   * STATE 1 — LIVE
+   *   Sunday, within start..end window
+   *   → white "● Watch Live" button, active
+   *
+   * STATE 2 — PREVIOUS STREAM (4-day window)
+   *   Sunday after stream ends  →  Wednesday 23:59 PT
+   *   day 0 (Sun) after end, day 1 (Mon), day 2 (Tue), day 3 (Wed)
+   *   → gold "Watch Previous Stream" button, active
+   *
+   * STATE 3 — OFFLINE
+   *   Thursday (day 4), Friday (day 5), Saturday (day 6),
+   *   or Sunday before the stream starts
+   *   → disabled grey button
+   */
+  function getButtonState(pt, service) {
+    var day  = pt.day;
+    var hour = pt.hour;
+
+    // Sunday: live window
+    if (day === 0 && hour >= service.start && hour < service.end) {
+      return 'live';
+    }
+
+    // Sunday after stream ended, OR Mon / Tue / Wed → "previous stream"
+    if (
+      (day === 0 && hour >= service.end) ||  // Sun after stream
+       day === 1 ||                           // Monday
+       day === 2 ||                           // Tuesday
+       day === 3                              // Wednesday
+    ) {
+      return 'previous';
+    }
+
+    // Everything else: Thu (4), Fri (5), Sat (6), Sun before stream
+    return 'offline';
+  }
+
+  /* ── Next livestream strip text ── */
+  function nextText(pt) {
+    var hour     = pt.hour;
+    var day      = pt.day;
+    var isSunday = pt.isSunday;
     var livestreams = SERVICES.filter(function(s) { return s.cardId !== null; });
 
     if (!isSunday) return 'Next livestream this <b>Sunday morning</b>';
@@ -1614,7 +1638,7 @@
     return 'Livestreams concluded for today — <b>see you next Sunday!</b>';
   }
 
-  /* Update cards and strip */
+  /* ── Apply state to cards & buttons ── */
   function update() {
     var pt = getPT();
 
@@ -1624,17 +1648,26 @@
       var btn  = s.btnId ? document.getElementById(s.btnId) : null;
       if (!card) return;
 
-      var isLive = pt.isSunday && pt.hour >= s.start && pt.hour < s.end;
+      var state  = getButtonState(pt, s);
+      var isLive = (state === 'live');
       var isSoon = pt.isSunday && pt.hour >= s.start - 0.25 && pt.hour < s.start;
 
+      // Live red border only during actual live window
       card.classList.toggle('is-live', isLive);
 
       if (btn) {
-        if (isLive) {
+        if (state === 'live') {
           btn.className = 'watch-btn live';
           btn.textContent = '● Watch Live';
           btn.style.pointerEvents = 'auto';
+
+        } else if (state === 'previous') {
+          btn.className = 'watch-btn prev-stream';
+          btn.textContent = 'Watch Previous Stream';
+          btn.style.pointerEvents = 'auto';
+
         } else {
+          // offline
           btn.className = 'watch-btn offline';
           btn.textContent = isSoon ? 'Starting Soon…' : 'Watch Live';
           btn.style.pointerEvents = 'none';
@@ -1643,7 +1676,7 @@
     });
 
     var el = document.getElementById('wsNextText');
-    if (el) el.innerHTML = nextText(pt.hour, pt.isSunday);
+    if (el) el.innerHTML = nextText(pt);
   }
 
   update();
@@ -1652,13 +1685,13 @@
   /* Set cover card background from data attribute */
   var cover = document.getElementById('sunday-cover');
   if (cover) {
-    var bg = cover.getAttribute('data-bg');
+    var bg   = cover.getAttribute('data-bg');
     var bgEl = cover.querySelector('.sunday-cover-bg');
     if (bg && bgEl) bgEl.style.backgroundImage = 'url(' + bg + ')';
   }
 
 }());
-</script>  
+</script>
   
 </body>
 </html>
